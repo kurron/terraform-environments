@@ -1,3 +1,11 @@
+terraform {
+    backend "s3" {
+        bucket = "transparent-test-terraform-state"
+        key    = "us-east-2/development/networking/vpc/terraform.tfstate"
+        region = "us-east-1"
+    }
+}
+
 module "vpc" {
     source = "github.com/kurron/terraform-aws-vpc"
 
