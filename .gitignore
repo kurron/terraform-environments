@@ -1,3 +1,4 @@
-*.class
-idea/
-*.iml
+.terraform/
+proposed-changes.plan
+terraform.tfstate
+terraform.tfstate.backup
