@@ -1,4 +1,5 @@
-.terraform/
+*.tfstate
+*.backup
 proposed-changes.plan
-terraform.tfstate
-terraform.tfstate.backup
+.terraform/
+terraform-log.txt
