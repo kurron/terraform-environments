@@ -68,7 +68,7 @@ module "bastion" {
     scale_down_desired_capacity = "0"
     scale_down_min_size         = "0"
     scale_up_cron               = "0 7 * * MON-FRI"
-    scale_down_cron             = "0 0 * * MON-FRI"
+    scale_down_cron             = "0 0 * * SUN-SAT"
     public_ssh_key              = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCv70t6ne08BNDf3aAQOdhe7h1NssBGPEucjKA/gL9vXpclGBqZnvOiQltKrOeOLzcbDJYDMYIJCwtoq7R/3RLOLDSi5OChhFtyjGULkIxa2dJgKXWPz04E1260CMqkKcgrQ1AaYA122zepakE7d+ysMoKSbQSVGaleZ6aFxe8DfKMzAFFra44tF5JUSMpuqwwI/bKEyehX/PDMNe/GWUTk+5c4XC6269NbaeWMivH2CiYPPBXblj6IT+QhBY5bTEFT57GmUff1sJOyhGN+9kMhlsSrXtp1A5wGiZ8nhoUduphzP3h0RNbRVA4mmI4jMnOF51uKbOvNk3Y79FSIS9Td Access to Bastion box"
     security_group_ids          = ["${data.terraform_remote_state.security-groups.bastion_id}"]
     subnet_ids                  = "${data.terraform_remote_state.vpc.public_subnet_ids}"
@@ -105,5 +105,5 @@ module "ec2_park" {
     freetext              = "No notes at this time."
     role_arn              = "${data.terraform_remote_state.iam.ec2_park_role_arn}"
     start_cron_expression = "cron(0 7 ? * MON-FRI *)"
-    stop_cron_expression  = "cron(0 0 ? * MON-FRI *)"
+    stop_cron_expression  = "cron(0 0 ? * SUN-SAT *)"
 }
