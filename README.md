@@ -35,6 +35,18 @@ files so there is nothing to install.
 1. if the changes are accepted, run `./apply.sh` to realize the proposed changes
 1. when it comes time to dispose of the assets, run `./destroy.sh`
 
+## Rates of Change
+You will find that parts of your infrastructure change at different rates.
+For example, you can create a VPC to hold your testing resources and never
+change it after its creation.  Other resources, such an ECS cluster, might
+need multiple modifications.  To account for this, it is recommended to split
+up your resources into their own folder, based on anticipated rates of change.
+For example:
+1. IAM roles and policies (global)
+1. VPCs
+1. Security Groups (VPC-specific)
+1. project-specific resources (VPC-specific)
+
 # Troubleshooting
 
 # Contributing
