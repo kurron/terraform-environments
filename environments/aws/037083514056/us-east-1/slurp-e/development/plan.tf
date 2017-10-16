@@ -37,7 +37,7 @@ variable "region" {
 
 variable "project" {
     type = "string"
-    default = "Slurp-E"
+    default = "Trial"
 }
 
 variable "creator" {
