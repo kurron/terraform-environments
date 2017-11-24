@@ -1,0 +1,25 @@
+[
+    {
+        "name": "Alpha",
+        "image": "nginx:latest",
+        "cpu": 256,
+        "memory": 128,
+        "portMappings": [
+            {
+                "containerPort": 80,
+                "hostPort": 0,
+                "protocol": "tcp"
+            }
+        ],
+        "essential": true,
+        "hostname": "alpha",
+        "disableNetworking": false,
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-region": "us-east-1",
+                "awslogs-group": "/examples/Examples/alpha"
+            }
+        }
+    }
+]
