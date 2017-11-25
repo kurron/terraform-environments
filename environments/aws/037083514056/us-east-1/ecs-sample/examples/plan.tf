@@ -52,6 +52,16 @@ variable "domain_name" {
     default = "transparent.engineering"
 }
 
+variable "alpha_service_name" {
+    type = "string"
+    default = "alpha"
+}
+
+variable "bravo_service_name" {
+    type = "string"
+    default = "bravo"
+}
+
 data "terraform_remote_state" "vpc" {
     backend = "s3"
     config {
@@ -152,11 +162,6 @@ module "ecs" {
     cluster_scaled_down_max_size     = "0"
 }
 
-variable "alpha_service_name" {
-    type = "string"
-    default = "alpha"
-}
-
 data "template_file" "alpha_service_definition" {
     template = "${file("${path.module}/files/alpha-task-definition.json.template")}"
     vars {
@@ -202,6 +207,55 @@ module "alpha_service" {
      deployment_maximum_percent         = "200"
      deployment_minimum_healthy_percent = "50"
      container_name                     = "${var.alpha_service_name}"
+     container_port                     = "8080"
+     container_protocol                 = "HTTP"
+}
+
+data "template_file" "bravo_service_definition" {
+    template = "${file("${path.module}/files/bravo-task-definition.json.template")}"
+    vars {
+        service_name = "${var.bravo_service_name}"
+    }
+}
+
+resource "aws_ecs_task_definition" "bravo" {
+    family                = "${var.bravo_service_name}"
+    container_definitions = "${data.template_file.bravo_service_definition.rendered}"
+    network_mode          = "bridge"
+}
+
+module "bravo_service" {
+     source = "kurron/ecs-service/aws"
+
+     region                             = "${var.region}"
+     name                               = "${var.bravo_service_name}"
+     project                            = "${var.project}"
+     purpose                            = "Just an example service"
+     creator                            = "${var.creator}"
+     environment                        = "${var.environment}"
+     freetext                           = "Dumps the current environment over REST"
+
+     enable_stickiness                  = "Yes"
+     health_check_interval              = "30"
+     health_check_path                  = "/${var.bravo_service_name}/operations/health"
+     health_check_timeout               = "5"
+     health_check_healthy_threshold     = "5"
+     unhealthy_threshold                = "2"
+     matcher                            = "200-299"
+
+     path_pattern                       = "/${var.bravo_service_name}*"
+     rule_priority                      = "2"
+     vpc_id                             = "${data.terraform_remote_state.vpc.vpc_id}"
+     secure_listener_arn                = "${data.terraform_remote_state.load_balancer.secure_listener_arn}"
+     insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
+
+     task_definition_arn                = "${aws_ecs_task_definition.bravo.arn}"
+     desired_count                      = "${length( data.terraform_remote_state.vpc.public_subnet_ids )}"
+     cluster_arn                        = "${module.ecs.cluster_arn}"
+     iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
+     deployment_maximum_percent         = "200"
+     deployment_minimum_healthy_percent = "50"
+     container_name                     = "${var.bravo_service_name}"
      container_port                     = "8080"
      container_protocol                 = "HTTP"
 }
