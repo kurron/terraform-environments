@@ -1,0 +1,31 @@
+[
+    {
+        "name": "${service_name}",
+        "image": "kurron/spring-cloud-aws-echo:1511641027",
+        "cpu": 256,
+        "environment": [
+            {
+                "name": "SERVER_CONTEXT-PATH",
+                "value": "/${service_name}"
+            }
+        ],
+        "memory": 256,
+        "portMappings": [
+            {
+                "containerPort": 8080,
+                "hostPort": 0,
+                "protocol": "tcp"
+            }
+        ],
+        "essential": true,
+        "hostname": "${service_name}",
+        "disableNetworking": false,
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-region": "us-east-1",
+                "awslogs-group": "/examples/Examples/${service_name}"
+            }
+        }
+    }
+]

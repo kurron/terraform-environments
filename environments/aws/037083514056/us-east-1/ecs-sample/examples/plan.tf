@@ -152,36 +152,48 @@ module "ecs" {
     cluster_scaled_down_max_size     = "0"
 }
 
+variable "alpha_service_name" {
+    type = "string"
+    default = "alpha"
+}
+
+data "template_file" "alpha_service_definition" {
+    template = "${file("${path.module}/files/alpha-task-definition.json.template")}"
+    vars {
+        service_name = "${var.alpha_service_name}"
+    }
+}
+
 resource "aws_ecs_task_definition" "alpha" {
-    family                = "Alpha"
-    container_definitions = "${file("files/alpha-task-definition.json")}"
+    family                = "${var.alpha_service_name}"
+    container_definitions = "${data.template_file.alpha_service_definition.rendered}"
     network_mode          = "bridge"
 }
 
 module "alpha_service" {
-    source = "kurron/ecs-service/aws"
+     source = "kurron/ecs-service/aws"
 
-     region                         = "${var.region}"
-     name                           = "Alpha"
-     project                        = "${var.project}"
-     purpose                        = "Just an example service"
-     creator                        = "${var.creator}"
-     environment                    = "${var.environment}"
-     freetext                       = "Dumps the current environment over REST"
+     region                             = "${var.region}"
+     name                               = "${var.alpha_service_name}"
+     project                            = "${var.project}"
+     purpose                            = "Just an example service"
+     creator                            = "${var.creator}"
+     environment                        = "${var.environment}"
+     freetext                           = "Dumps the current environment over REST"
 
-     enable_stickiness              = "Yes"
-     health_check_interval          = "30"
-     health_check_path              = "/"
-     health_check_timeout           = "5"
-     health_check_healthy_threshold = "5"
-     unhealthy_threshold            = "2"
-     matcher                        = "200-299"
+     enable_stickiness                  = "Yes"
+     health_check_interval              = "30"
+     health_check_path                  = "/${var.alpha_service_name}/operations/health"
+     health_check_timeout               = "5"
+     health_check_healthy_threshold     = "5"
+     unhealthy_threshold                = "2"
+     matcher                            = "200-299"
 
-     path_pattern                   = "/alpha*"
-     rule_priority                  = "1"
-     vpc_id                         = "${data.terraform_remote_state.vpc.vpc_id}"
-     secure_listener_arn            = "${data.terraform_remote_state.load_balancer.secure_listener_arn}"
-     insecure_listener_arn          = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
+     path_pattern                       = "/${var.alpha_service_name}*"
+     rule_priority                      = "1"
+     vpc_id                             = "${data.terraform_remote_state.vpc.vpc_id}"
+     secure_listener_arn                = "${data.terraform_remote_state.load_balancer.secure_listener_arn}"
+     insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.alpha.arn}"
      desired_count                      = "2"
@@ -189,7 +201,7 @@ module "alpha_service" {
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
      deployment_minimum_healthy_percent = "50"
-     container_name                     = "Alpha"
-     container_port                     = "80"
+     container_name                     = "${var.alpha_service_name}"
+     container_port                     = "8080"
      container_protocol                 = "HTTP"
 }
