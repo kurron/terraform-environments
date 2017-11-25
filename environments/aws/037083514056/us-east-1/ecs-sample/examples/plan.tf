@@ -196,7 +196,7 @@ module "alpha_service" {
      insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.alpha.arn}"
-     desired_count                      = "2"
+     desired_count                      = "${length( data.terraform_remote_state.vpc.public_subnet_ids )}"
      cluster_arn                        = "${module.ecs.cluster_arn}"
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
