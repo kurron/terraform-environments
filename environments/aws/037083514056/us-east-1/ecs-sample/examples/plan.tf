@@ -201,7 +201,7 @@ module "alpha_service" {
      insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.alpha.arn}"
-     desired_count                      = "${length( data.terraform_remote_state.vpc.public_subnet_ids )}"
+     desired_count                      = "12"
      cluster_arn                        = "${module.ecs.cluster_arn}"
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
@@ -209,6 +209,9 @@ module "alpha_service" {
      container_name                     = "${var.alpha_service_name}"
      container_port                     = "8080"
      container_protocol                 = "HTTP"
+
+     placement_strategy_type  = "binpack"
+     placement_strategy_field = "memory"
 }
 
 data "template_file" "bravo_service_definition" {
@@ -250,7 +253,7 @@ module "bravo_service" {
      insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.bravo.arn}"
-     desired_count                      = "${length( data.terraform_remote_state.vpc.public_subnet_ids )}"
+     desired_count                      = "12"
      cluster_arn                        = "${module.ecs.cluster_arn}"
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
@@ -258,4 +261,7 @@ module "bravo_service" {
      container_name                     = "${var.bravo_service_name}"
      container_port                     = "8080"
      container_protocol                 = "HTTP"
+
+     placement_strategy_type  = "spread"
+     placement_strategy_field = "instanceId"
 }

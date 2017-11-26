@@ -2,7 +2,7 @@
     {
         "name": "${service_name}",
         "image": "kurron/spring-cloud-aws-echo:1511641027",
-        "cpu": 128,
+        "cpu": 0,
         "environment": [
             {
                 "name": "SERVER_CONTEXT-PATH",
