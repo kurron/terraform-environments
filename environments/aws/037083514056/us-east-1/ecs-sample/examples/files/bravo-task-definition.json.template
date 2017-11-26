@@ -9,7 +9,7 @@
                 "value": "/${service_name}"
             }
         ],
-        "memory": 256,
+        "memory": 512,
         "portMappings": [
             {
                 "containerPort": 8080,

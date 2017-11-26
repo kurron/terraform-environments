@@ -62,6 +62,11 @@ variable "bravo_service_name" {
     default = "bravo"
 }
 
+variable "instance_type" {
+    type = "string"
+    default = "m3.medium"
+}
+
 data "terraform_remote_state" "vpc" {
     backend = "s3"
     config {
@@ -143,7 +148,7 @@ module "ecs" {
     environment                      = "${var.environment}"
     freetext                         = "Workers are based on spot instances."
     ami_regexp                       = "^amzn-ami-.*-amazon-ecs-optimized$"
-    instance_type                    = "m3.medium"
+    instance_type                    = "${var.instance_type}"
     instance_profile                 = "${data.terraform_remote_state.iam.ecs_profile_id}"
     ssh_key_name                     = "${module.bastion.ssh_key_name}"
     security_group_ids               = ["${data.terraform_remote_state.security-groups.ec2_id}"]
@@ -156,7 +161,7 @@ module "ecs" {
     health_check_grace_period        = "300"
     subnet_ids                       = "${data.terraform_remote_state.vpc.public_subnet_ids}"
     scale_up_cron                    = "0 13 * * MON-FRI"
-    scale_down_cron                  = "0 1 * * SUN-SAT"
+    scale_down_cron                  = "0 01 * * SUN-SAT"
     cluster_scaled_down_min_size     = "0"
     cluster_scaled_down_desired_size = "0"
     cluster_scaled_down_max_size     = "0"
@@ -201,7 +206,7 @@ module "alpha_service" {
      insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.alpha.arn}"
-     desired_count                      = "12"
+     desired_count                      = "7"
      cluster_arn                        = "${module.ecs.cluster_arn}"
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
@@ -210,8 +215,21 @@ module "alpha_service" {
      container_port                     = "8080"
      container_protocol                 = "HTTP"
 
-     placement_strategy_type  = "binpack"
-     placement_strategy_field = "memory"
+     placement_strategies = [
+         {
+             "type"  = "spread"
+             "field" = "attribute:ecs.availability-zone"
+         }
+     ]
+     placement_constraints    = [
+         {
+             "type" = "distinctInstance"
+         },
+         {
+             "type"       = "memberOf"
+             "expression" = "attribute:ecs.instance-type == ${var.instance_type}"
+         }
+     ]
 }
 
 data "template_file" "bravo_service_definition" {
@@ -253,7 +271,7 @@ module "bravo_service" {
      insecure_listener_arn              = "${data.terraform_remote_state.load_balancer.insecure_listener_arn}"
 
      task_definition_arn                = "${aws_ecs_task_definition.bravo.arn}"
-     desired_count                      = "12"
+     desired_count                      = "8"
      cluster_arn                        = "${module.ecs.cluster_arn}"
      iam_role                           = "${data.terraform_remote_state.iam.ecs_role_arn}"
      deployment_maximum_percent         = "200"
@@ -262,6 +280,20 @@ module "bravo_service" {
      container_port                     = "8080"
      container_protocol                 = "HTTP"
 
-     placement_strategy_type  = "spread"
-     placement_strategy_field = "instanceId"
+     placement_strategies = [
+         {
+             "type"  = "spread"
+             "field" = "attribute:ecs.availability-zone"
+         },
+         {
+             "type"  = "binpack"
+             "field" = "memory"
+         }
+     ]
+     placement_constraints    = [
+         {
+             "type"       = "memberOf"
+             "expression" = "attribute:ecs.instance-type == ${var.instance_type}"
+         }
+     ]
 }
