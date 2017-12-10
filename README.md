@@ -40,7 +40,7 @@ The assets are divided based on the anticipated rate of change, following naming
 * all-environments
 
 ## Construction Sequence
-Assuming you are starting from a clean slate, the sequence that resources are built from general to more specific.
+Assuming you are starting from a clean slate, build resources from general to more specific.
 1. `aws/037083514056/all-regions/all-projects/examples/security/iam`
 1. `aws/037083514056/us-east-1/all-projects/all-environments/application-services/api-gateway`
 1. `aws/037083514056/us-east-1/all-projects/examples/networking/vpc`
