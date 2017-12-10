@@ -1,5 +1,5 @@
 terraform {
-    required_version = ">= 0.10.7"
+    required_version = ">= 0.11"
     backend "s3" {}
 }
 
@@ -33,7 +33,8 @@ module "journaler_api_gateway_binding" {
     api_gateway_id               = "${data.terraform_remote_state.api_gateway.government_gateway_id}"
     api_gateway_root_resource_id = "${data.terraform_remote_state.api_gateway.government_root_resource_id}"
     api_root_path                = "slurp-e-journaler"
-    api_key_required             = "true"
+    root_api_key_required        = "true"
+    child_api_key_required       = "true"
 }
 
 module "processor_api_gateway_binding" {
@@ -43,7 +44,8 @@ module "processor_api_gateway_binding" {
     api_gateway_id               = "${data.terraform_remote_state.api_gateway.government_gateway_id}"
     api_gateway_root_resource_id = "${data.terraform_remote_state.api_gateway.government_root_resource_id}"
     api_root_path                = "slurp-e-processor"
-    api_key_required             = "true"
+    root_api_key_required        = "true"
+    child_api_key_required       = "true"
 }
 
 module "api_server_api_gateway_binding" {
@@ -53,5 +55,6 @@ module "api_server_api_gateway_binding" {
     api_gateway_id               = "${data.terraform_remote_state.api_gateway.government_gateway_id}"
     api_gateway_root_resource_id = "${data.terraform_remote_state.api_gateway.government_root_resource_id}"
     api_root_path                = "slurp-e-api"
-    api_key_required             = "true"
+    root_api_key_required        = "true"
+    child_api_key_required       = "true"
 }
