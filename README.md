@@ -75,7 +75,7 @@ variable "creator" {
 # inputs
 #
 variable "environment" {
-    type = "string"
+    type        = "string"
     description = "Context these resources will be used in, e.g. production"
 }
 ```
@@ -94,6 +94,10 @@ environment        = "test"
 region             = "us-east-1"
 environment        = "production"
 ```
+
+## Driving Terraform
+To simplify the experience, the workflow is driven via simple Bash scripts.  The typical sequence is `./plan-changes.sh` followed by `apply-changes.sh`. On the rare occasion that you need to tear down resources, `delete-environment.sh` environment exists.  At minimum the scripts expect an environment to be provided and sometimes expect more, such as a Docker image tag, to be provided.  Assuming we are in the `infrequently-changing` directory and that we want to build out the `test` environment, we would issue `./plan-changes.sh test` which would show us what changes Terraform is planning to make.  Assuming we're ok with the modifications, we would then issue `./apply-changes.sh test` to update AWS.  If you look at each script, you'll notice that the files it reads in is based on the naming convention previously discussed.
+
 
 # Tips and Tricks
 ## Typical Work Flow

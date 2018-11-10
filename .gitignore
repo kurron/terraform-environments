@@ -1,5 +1,5 @@
 *.tfstate
 *.backup
-proposed-changes.plan
+*.plan
 .terraform/
 terraform-log.txt
