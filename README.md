@@ -34,7 +34,7 @@ key    = "test/infrequently-changing/terraform.tfstate"
 ```   
 
 ## Terraform Resources
-When run, Terraform loads up any files with the extension of `.tf`, assembling them into a single execution context.  This allows you to split up your logic into smaller or manageable pieces.  For example, you could have `s3.tf` to manage S3 bucket resources and `vpc.tf` managing your VPC logic.  When writing these files, we need to think about which pieces need to change between environments and use variables to capture those changes.  Sometimes changes can be as simple as applying a naming convention to a resource, e.g. `vpc-test` vs `vpc-production`, or how many EC2 instances should be in an ECS cluster.  Here is an example resource that creates an S3 bucket.
+When run, Terraform loads up any files with the extension of `.tf`, assembling them into a single execution context.  This allows you to split up your logic into smaller more manageable pieces.  For example, you could have `s3.tf` to manage S3 bucket resources and `vpc.tf` managing your VPC logic.  When writing these files, we need to think about which pieces need to change between environments and use variables to capture those changes.  Sometimes changes can be as simple as applying a naming convention to a resource, e.g. `vpc-test` vs `vpc-production` or more complex such as how many EC2 instances should be in an ECS cluster.  Here is an example resource that creates an S3 bucket.
 
 ```
 resource "aws_s3_bucket" "bucket" {
@@ -57,6 +57,43 @@ resource "aws_s3_bucket" "bucket" {
 ```
 
 Notice how `environment`, `project`, `creator` and `region` have been parameterized, allowing the logic to reused between different projects and environments?
+
+## Environment-specific Versus Constant Values
+Some values, such as the project the resources are being created for, are stable and should be expressed as a constant value.  Other values, such as the environment the resource is being deployed in, change between deployments and should be expressed a variables.
+
+```
+#
+# constants
+#
+variable "creator" {
+    type        = "string"
+    description = "Person or tool creating these resources, e.g. operations@example.com"
+    default     = "Terraform"
+}
+
+#
+# inputs
+#
+variable "environment" {
+    type = "string"
+    description = "Context these resources will be used in, e.g. production"
+}
+```
+
+I like to place values shared by the various Terraform files into `common.tf`.  Terraform currently doesn't have support for constant values so we simulate it by used a variable with a default value.
+
+## Specifying Environment-specific Values
+Any values that differ between environments needs to live in a file with the extension of `.tfvars`.  The convention for such files is `environment name.tfvars`.  For this showcase, we'll need `test.tfvars` and `production.tfvars`.
+
+```
+region             = "us-west-1"
+environment        = "test"
+```
+
+```
+region             = "us-east-1"
+environment        = "production"
+```
 
 # Tips and Tricks
 ## Typical Work Flow
