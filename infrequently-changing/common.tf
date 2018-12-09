@@ -1,6 +1,11 @@
 #
 # inputs
 #
+variable "profile" {
+    type = "string"
+    description = "The AWS CLI profile to use, e.g. showcase-production"
+}
+
 variable "region" {
     type = "string"
     description = "The AWS region to deploy into, e.g. us-east-1"
@@ -38,5 +43,6 @@ terraform {
 # AWS setup
 #
 provider "aws" {
-    region     = "${var.region}"
+    region  = "${var.region}"
+    profile = "${var.profile}"
 }

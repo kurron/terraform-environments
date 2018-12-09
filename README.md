@@ -28,7 +28,7 @@ To support multiple environments, we use several of Terraform's building blocks,
 When Terraform runs, it compares the state of what is in AWS to what has been declared in the Terraform files, reconciling any differences it finds.  The state is stored in an S3 bucket which needs to be created prior to running any of the scripts.  Inside the bucket, each environment will store its state under its own key.  That key is contained in a file that is named after the environment it applies to.  For this showcase, we'll need two files: `test-backend.cfg` and `production-backend.cfg`.  Here is an example of a configuration for the test environment in the `infrequently-changing` folder:
 
 ```
-bucket = "terraform-stage"
+bucket = "terraform-state"
 region = "us-east-1"
 key    = "test/infrequently-changing/terraform.tfstate"
 ```   
@@ -56,7 +56,7 @@ resource "aws_s3_bucket" "bucket" {
 }
 ```
 
-Notice how `environment`, `project`, `creator` and `region` have been parameterized, allowing the logic to reused between different projects and environments?
+Notice how `environment`, `project`, `creator` and `region` have been parameterized, allowing the logic to be reused between different projects and environments?
 
 ## Environment-specific Versus Constant Values
 Some values, such as the project the resources are being created for, are stable and should be expressed as a constant value.  Other values, such as the environment the resource is being deployed in, change between deployments and should be expressed a variables.
@@ -80,7 +80,7 @@ variable "environment" {
 }
 ```
 
-I like to place values shared by the various Terraform files into `common.tf`.  Terraform currently doesn't have support for constant values so we simulate it by used a variable with a default value.
+I like to place values shared by the various Terraform files into `common.tf`.  Terraform currently doesn't have support for constant values so we simulate it by using a variable with a default value.
 
 ## Specifying Environment-specific Values
 Any values that differ between environments needs to live in a file with the extension of `.tfvars`.  The convention for such files is `environment name.tfvars`.  For this showcase, we'll need `test.tfvars` and `production.tfvars`.
@@ -96,7 +96,9 @@ environment        = "production"
 ```
 
 ## Driving Terraform
-To simplify the experience, the workflow is driven via simple Bash scripts.  The typical sequence is `./plan-changes.sh` followed by `apply-changes.sh`. On the rare occasion that you need to tear down resources, `delete-environment.sh` environment exists.  At minimum the scripts expect an environment to be provided and sometimes expect more, such as a Docker image tag, to be provided.  Assuming we are in the `infrequently-changing` directory and that we want to build out the `test` environment, we would issue `./plan-changes.sh test` which would show us what changes Terraform is planning to make.  Assuming we're ok with the modifications, we would then issue `./apply-changes.sh test` to update AWS.  If you look at each script, you'll notice that the files it reads in is based on the naming convention previously discussed.
+To simplify the experience, the workflow is driven via simple Bash scripts.  The typical sequence is `./plan-changes.sh` followed by `apply-changes.sh`. On the rare occasion that you need to tear down resources, `delete-environment.sh` environment exists.  At minimum the scripts expect an environment to be provided and sometimes expect more, such as a Docker image tag, to be provided.  
+
+Assuming we are in the `infrequently-changing` directory and that we want to build out the `test` environment, we would issue `./plan-changes.sh test` which would show us what changes Terraform is planning to make to the `test` environment.  Assuming we're ok with the modifications, we would then issue `./apply-changes.sh test` to update AWS.  If you look at each script, you'll notice that the files it processed is based on the naming convention previously discussed.
 
 
 # Tips and Tricks
@@ -104,8 +106,7 @@ To simplify the experience, the workflow is driven via simple Bash scripts.  The
 1. `cd` into the appropriate directory
 1. edit `backend.cfg` to point to the S3 bucket where the current state should be stored
 1. edit `plan.tf` to adjust the module's settings as desired
-1. `./initialize.sh` to set up the environment.  It is safe to do this more than once.
-1. `plan.sh` to see see what changes will be made to resources
+1. `./plan.sh` to see see what changes will be made to resources
 1. commit the changes, including `proposed-changes.plan` to source control
 1. a peer pulls down your changes and runs `./review.sh` to review the proposed changes
 1. if the changes are accepted, run `./apply.sh` to realize the proposed changes
@@ -113,16 +114,10 @@ To simplify the experience, the workflow is driven via simple Bash scripts.  The
 
 ## Rates of Change
 You will find that parts of your infrastructure change at different rates. For example, you can create a VPC to hold your testing resources and never change it after its creation.  Other resources, such an ECS cluster, might need multiple modifications.  To account for this, it is recommended to split up your resources into their own folder, based on anticipated rates of change. For example:
-1. IAM roles and policies (global)
-1. VPCs
-1. Security Groups (VPC-specific)
-1. project-specific resources (VPC-specific)
+1. `frequently-changing/lambda/alpha`
+1. `frequently-changing/ecs/service/bravo`
+1. `frequently-changing/ecs/task/charlie`
 
-## Folder Structure
-The assets are divided based on the anticipated rate of change, following naming pattern: aws/`account number`/`region`/`project`/`environment`.  For resources than span multiple contexts, the following conventions are used:
-* all-regions
-* all-projects
-* all-environments
 
 ## Construction Sequence
 Assuming you are starting from a clean slate, build resources from general to more specific.
