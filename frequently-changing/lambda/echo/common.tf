@@ -66,7 +66,7 @@ data "terraform_remote_state" "stable" {
     config {
         profile = "${var.profile}"
         bucket  = "${var.terraform_state_bucket}"
-        key     = "infrequently-changing/terraform.tfstate"
+        key     = "${var.environment}/infrequently-changing/terraform.tfstate"
         region  = "${var.terraform_state_bucket_region}"
     }
 }
