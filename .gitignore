@@ -1,5 +1,6 @@
 *.tfstate
 *.backup
 *.plan
+*.zip
 .terraform/
 terraform-log.txt

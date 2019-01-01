@@ -15,3 +15,8 @@ resource "aws_s3_bucket" "bucket" {
         Freetext    = "Has an event trigger wired up to it."
     }
 }
+
+output "bucket_arn" {
+    description = "The bucket's Amazon Resource Name"
+    value       = "${aws_s3_bucket.bucket.arn}"
+}

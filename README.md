@@ -4,7 +4,7 @@ This project is an example of how to use [Terraform](https://www.terraform.io/) 
 # Prerequisites
 * working [Terraform](https://www.terraform.io/) installation
 * working Linux installation.  Testing was done on [Ubuntu](https://www.ubuntu.com/)
-* set of AWS API keys from an account that has sufficient rights to build out a VPC
+* set of AWS API keys from an account that has sufficient rights to manage S3 and Lambda
 
 # Building
 This project is a collection of Bash scripts and Terraform configuration files so there is nothing to build.
@@ -96,7 +96,7 @@ environment        = "production"
 ```
 
 ## Driving Terraform
-To simplify the experience, the workflow is driven via simple Bash scripts.  The typical sequence is `./plan-changes.sh` followed by `apply-changes.sh`. On the rare occasion that you need to tear down resources, `delete-environment.sh` environment exists.  At minimum the scripts expect an environment to be provided and sometimes expect more, such as a Docker image tag, to be provided.  
+To simplify the experience, the workflow is driven via simple Bash scripts.  The typical sequence is `./plan-changes.sh` followed by `./apply-changes.sh`. On the rare occasion that you need to tear down resources, `./delete-environment.sh` environment exists.  At minimum the scripts expect an environment to be provided and sometimes expect more, such as a Docker image tag, to be provided.  
 
 Assuming we are in the `infrequently-changing` directory and that we want to build out the `test` environment, we would issue `./plan-changes.sh test` which would show us what changes Terraform is planning to make to the `test` environment.  Assuming we're ok with the modifications, we would then issue `./apply-changes.sh test` to update AWS.  If you look at each script, you'll notice that the files it processed is based on the naming convention previously discussed.
 
@@ -121,13 +121,7 @@ You will find that parts of your infrastructure change at different rates. For e
 
 ## Construction Sequence
 Assuming you are starting from a clean slate, build resources from general to more specific.
-1. `aws/037083514056/all-regions/all-projects/examples/security/iam`
-1. `aws/037083514056/us-east-1/all-projects/all-environments/application-services/api-gateway`
-1. `aws/037083514056/us-east-1/all-projects/examples/networking/vpc`
-1. `aws/037083514056/us-east-1/all-projects/examples/compute/security-groups`
-1. `aws/037083514056/us-east-1/all-projects/examples/compute/load-balancer`
-1. `aws/037083514056/us-east-1/ecs-sample/all-environments`
-1. `aws/037083514056/us-east-1/ecs-sample/examples`
+1. `foo`
 
 # Troubleshooting
 
