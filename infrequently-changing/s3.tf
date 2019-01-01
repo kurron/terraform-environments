@@ -16,7 +16,12 @@ resource "aws_s3_bucket" "bucket" {
     }
 }
 
-output "bucket_arn" {
-    description = "The bucket's Amazon Resource Name"
-    value       = "${aws_s3_bucket.bucket.arn}"
+resource "aws_s3_bucket_notification" "bucket_notification" {
+    bucket = "${aws_s3_bucket.bucket.id}"
+    queue {
+        id            = "create-nofifications-${var.environment}"
+        queue_arn     = "${aws_sqs_queue.nofifications.arn}"
+        events        = ["s3:ObjectCreated:*"]
+        filter_suffix = ".txt"
+    }
 }

@@ -4,7 +4,7 @@ This project is an example of how to use [Terraform](https://www.terraform.io/) 
 # Prerequisites
 * working [Terraform](https://www.terraform.io/) installation
 * working Linux installation.  Testing was done on [Ubuntu](https://www.ubuntu.com/)
-* set of AWS API keys from an account that has sufficient rights to manage S3 and Lambda
+* set of AWS API keys from an account that has sufficient rights to manage S3, SQS and Lambda
 
 # Building
 This project is a collection of Bash scripts and Terraform configuration files so there is nothing to build.
