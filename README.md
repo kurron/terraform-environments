@@ -4,7 +4,7 @@ This project is an example of how to use [Terraform](https://www.terraform.io/) 
 # Prerequisites
 * working [Terraform](https://www.terraform.io/) installation
 * working Linux installation.  Testing was done on [Ubuntu](https://www.ubuntu.com/)
-* set of AWS API keys from an account that has sufficient rights to manage S3, SQS and Lambda
+* AWS profiles that has sufficient rights to manage S3, SQS and Lambda
 
 # Building
 This project is a collection of Bash scripts and Terraform configuration files so there is nothing to build.
@@ -124,6 +124,8 @@ Assuming you are starting from a clean slate, build resources from general to mo
 1. `foo`
 
 # Troubleshooting
+## AWS Profiles
+This system uses AWS profiles to manage AWS API keys. You'll want one profile per environment, e.g. `showcase-production` and `showcase-test`.  To create the profile, use the AWS CLI, e.g. `aws configure --profle showcase-test`.
 
 # Contributing
 
